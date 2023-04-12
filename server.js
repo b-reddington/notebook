@@ -42,7 +42,38 @@ app.get('/api/notes', (req, res) => {
 app.post('/api/notes', (req, res) => {
     // Destructure the request body
     const {noteTitle, noteText } = req.body;
-    // This will create a new note
+    if (noteTitle && noteText) {
+        fs.readFile('./db/db.json', 'utf8', (err, data) => {
+            if (err) {
+                res.status(500).send('Error reading data file');
+                console.error(err);
+            }
+            else {
+                const notes = JSON.parse(data);
+                const createNote = {
+                    id: uuid(),
+                    title,
+                    text,
+                }
+                // Let user know their note was created
+                const response = {
+                    status: 'success',
+                    body: newNoteBtn,
+                };
+                // This will add the new note to the db.json file
+                notes.push(createNote);
+                fs.writeFile('./db/db.json', JSON.stringify(notes, null, 2), (err) => {
+                if (err) {
+                    console.error(err);
+                }
+                else {
+                    res.json(response);
+                    console.info(`${req.method} request received to add note`);
+                }
+                });
+            }
+        })
+    }
 });
 
 app.get('*', (req, res) => {
