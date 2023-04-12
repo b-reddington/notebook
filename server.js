@@ -40,9 +40,9 @@ app.get('/api/notes', (req, res) => {
 });
 
 app.post('/api/notes', (req, res) => {
-    // Destructure the request body
-    const {noteTitle, noteText } = req.body;
-    if (noteTitle && noteText) {
+    // Deconstruct the request body
+    const { title, text } = req.body;
+    if (title && text) {
         fs.readFile('./db/db.json', 'utf8', (err, data) => {
             if (err) {
                 res.status(500).send('Error reading data file');
@@ -58,21 +58,23 @@ app.post('/api/notes', (req, res) => {
                 // Let user know their note was created
                 const response = {
                     status: 'success',
-                    body: newNoteBtn,
+                    body: createNote,
                 };
                 // This will add the new note to the db.json file
                 notes.push(createNote);
                 fs.writeFile('./db/db.json', JSON.stringify(notes, null, 2), (err) => {
-                if (err) {
-                    console.error(err);
-                }
-                else {
-                    res.json(response);
-                    console.info(`${req.method} request received to add note`);
-                }
+                    if (err) {
+                        console.error(err);
+                    }
+                    else {
+                        res.json(response);
+                        console.info(`${req.method} request received to add note`);
+                    }
                 });
             }
-        })
+        });
+    } else {
+        res.status(400).send('Please include a title and text for the note.');
     }
 });
 
